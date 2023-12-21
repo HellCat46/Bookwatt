@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebAPI.Models;
 
-public class BookTypeModel
+public class BookType
 {
     [Key]
     public int Id { get; set; }

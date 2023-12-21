@@ -22,7 +22,7 @@ public class BookModel
     
     [Required]
     public int Typeid { get; set; }
-    public BookTypeModel BookType { get; set; }
+    public BookType BookType { get; set; }
     
     [Required]
     public string Cover { get; set; }

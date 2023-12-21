@@ -11,9 +11,9 @@ using WebAPI.dbContext;
 
 namespace WebAPI.Migrations
 {
-    [DbContext(typeof(UserDbContext))]
-    [Migration("20231221021914_Adds More Tables")]
-    partial class AddsMoreTables
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20231221081943_Initial Migration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -91,7 +91,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Book");
                 });
 
-            modelBuilder.Entity("WebAPI.Models.BookTypeModel", b =>
+            modelBuilder.Entity("WebAPI.Models.BookType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +104,7 @@ namespace WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BookTypeModel");
+                    b.ToTable("BookType");
                 });
 
             modelBuilder.Entity("WebAPI.Models.SellerModel", b =>
@@ -122,8 +122,8 @@ namespace WebAPI.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -132,7 +132,7 @@ namespace WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SellerModel");
+                    b.ToTable("Seller");
                 });
 
             modelBuilder.Entity("WebAPI.Models.UserModel", b =>
@@ -150,8 +150,8 @@ namespace WebAPI.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -180,7 +180,7 @@ namespace WebAPI.Migrations
 
             modelBuilder.Entity("WebAPI.Models.BookModel", b =>
                 {
-                    b.HasOne("WebAPI.Models.BookTypeModel", "BookType")
+                    b.HasOne("WebAPI.Models.BookType", "BookType")
                         .WithMany()
                         .HasForeignKey("BookTypeId")
                         .OnDelete(DeleteBehavior.Cascade)

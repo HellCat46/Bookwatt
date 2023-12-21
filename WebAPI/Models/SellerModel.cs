@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace WebAPI.Models;
 
@@ -10,7 +11,7 @@ public class SellerModel
     public int Id { get; set; }
     
     [Required]
-    [StringLength(256)]
+    [StringLength(100)]
     public string Name { get; set; }
     
     [Required]
@@ -22,4 +23,13 @@ public class SellerModel
     public string Password { get; set; }
 
     public ICollection<BookModel> Books { get; set; }
+    
+    public static byte[] Serialize(SellerModel account)
+    {
+        return JsonSerializer.SerializeToUtf8Bytes(account);
+    }
+    public static SellerModel Deserialize(byte[] bytes)
+    {
+        return JsonSerializer.Deserialize<SellerModel>(bytes);
+    }
 }
