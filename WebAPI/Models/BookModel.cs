@@ -21,15 +21,23 @@ public class BookModel
     public string Author { get; set; }
     
     [Required]
-    public int Type { get; set; }
+    public int Typeid { get; set; }
+    public BookTypeModel BookType { get; set; }
     
     [Required]
     public string Cover { get; set; }
     
     [Required]
     [StringLength(100)]
-    public string Publish { get; set; }
+    public string Publisher { get; set; }
     
     [Required]
     public DateTime PublishAt { get; set; } 
+    
+    [Required]
+    public int SellerId { get; set; }
+    public SellerModel Seller { get; set; }
+    
+    [Required]
+    public ICollection<UserModel> Buyers { get; set; } 
 }

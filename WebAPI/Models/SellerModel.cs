@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Models;
 
-public class UserModel
+public class SellerModel
 {
     [Key] 
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -22,5 +21,5 @@ public class UserModel
     [StringLength(20)]
     public string Password { get; set; }
 
-    public ICollection<BookModel> Books { get; set; } 
+    public ICollection<BookModel> Books { get; set; }
 }
