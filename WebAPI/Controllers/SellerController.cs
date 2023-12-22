@@ -15,75 +15,157 @@ public class SellerController : ControllerBase
     {
         _context = context;
     }
-    
-    
+
+
     [HttpPost]
-    [Route("/sellerLogin")]
+    [Route("/seller/login")]
     public IActionResult Login(Login creds)
     {
         try
         {
             byte[]? bytes = HttpContext.Session.Get("SessionID");
-            if (bytes != null) return BadRequest(new
-            {
-                error = "Already Authenticated",
-            });
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 0 && sessionType != null)
+                return StatusCode(403,
+                    new { error = "AccessDenied", message = "Logout from the User Account First!!!" });
+            if (bytes != null)
+                return BadRequest(new
+                {
+                    error = "AlreadyAuthenticated",
+                    message = "You are already logged in."
+                });
 
             SellerModel? account = _context.Seller.FirstOrDefault(acc => acc.Email == creds.email);
-            if (account == null) return Unauthorized(new { error = "No Account Associated with this email" });
-            if (account.Password != creds.password) return Unauthorized(new { error = "Invalid Credentials" });
+            if (account == null)
+                return NotFound(new { error = "AccountNotFound", message = "No Account Associated with this email" });
+            if (account.Password != creds.password)
+                return Unauthorized(new { error = "InvalidCredentials", message = "Account Credentials are Invalid." });
 
             HttpContext.Session.Set("SessionID", SellerModel.Serialize(account));
+            HttpContext.Session.SetInt32("SessionType", 0);
             return Ok();
         }
         catch (Exception ex)
         {
             Console.Write(ex);
-            return StatusCode(500);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
         }
     }
 
     [HttpPost]
-    [Route("/sellerRegister")]
+    [Route("/seller/Register")]
     public IActionResult Register(Register data)
     {
         try
         {
             byte[]? bytes = HttpContext.Session.Get("SessionID");
-            if (bytes != null) return BadRequest(new
-            {
-                error = "Already Authenticated",
-            });
-            
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 0 && sessionType != null)
+                return StatusCode(403,
+                    new { error = "AccessDenied", message = "Logout from the User Account First!!!" });
+            if (bytes != null)
+                return BadRequest(new
+                {
+                    error = "Already Authenticated",
+                    message = "You are already logged in."
+                });
+
             SellerModel acc = new SellerModel()
             {
                 Name = data.name,
                 Email = data.email,
                 Password = data.password
             };
-            
+
             _context.Seller.Add(acc);
             _context.SaveChanges();
             HttpContext.Session.Set("SessionID", SellerModel.Serialize(acc));
+            HttpContext.Session.SetInt32("SessionType", 0);
         }
         catch (Exception ex)
         {
             Console.Write(ex);
-            return StatusCode(500);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
         }
+
         return Ok();
     }
 
+    [HttpGet]
+    [Route("/seller/listBooks")]
+    public IActionResult ListBooks()
+    {
+        try
+        {
+            byte[]? bytes = HttpContext.Session.Get("SessionID");
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 0 && sessionType != null)
+                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires Seller Account." });
+            if (bytes == null)
+                return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+            SellerModel account = SellerModel.Deserialize(bytes);
+
+            IQueryable<BookModel> bookModels = _context.Book.Where(book => book.SellerId == account.Id);
+            List<ServeBook> books = new List<ServeBook>();
+
+            foreach (BookModel book in bookModels)
+            {
+                books.Add(new ServeBook()
+                {
+                    Id = book.Id,
+                    Name = book.Name,
+                    Author = book.Author,
+                    Cover = HttpContext.Request.Headers.Host + "/Assets/" + book.Cover,
+                    Price = book.Price,
+                    Publisher = book.Publisher,
+                    PublishedAt = book.PublishAt,
+                    Type = book.BookTypeId,
+                });
+            }
+
+            return Ok(books);
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
+        }
+    }
+
     [HttpPost]
-    [Route("/addBook")]
+    [Route("/seller/addBook")]
     public IActionResult AddBook(Book bookDetails)
     {
         try
         {
             byte[]? bytes = HttpContext.Session.Get("SessionID");
-            if (bytes == null) return StatusCode(403);
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 0 && sessionType != null)
+                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires Seller Account." });
+            if (bytes == null)
+                return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
-            
+
             // Saves Book Cover 
             string fileName = bookDetails.Name + "." + bookDetails.Cover.FileName.Split(".").Last();
             using (FileStream coverFile =
@@ -92,7 +174,7 @@ public class SellerController : ControllerBase
                 bookDetails.Cover.CopyTo(coverFile);
                 coverFile.Close();
             }
-            
+
             _context.Book.Add(new BookModel()
             {
                 Name = bookDetails.Name,
@@ -110,23 +192,35 @@ public class SellerController : ControllerBase
         catch (Exception ex)
         {
             Console.Write(ex);
-            return StatusCode(500);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
         }
     }
-    
+
     [HttpPost]
-    [Route("/updateBook")]
+    [Route("/seller/updateBook")]
     public IActionResult UpdateBook(Book newDetails)
     {
         try
         {
             byte[]? bytes = HttpContext.Session.Get("SessionID");
-            if (bytes == null) return StatusCode(403);
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 0 && sessionType != null)
+                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires Seller Account." });
+            if (bytes == null)
+                return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
 
             BookModel? book = _context.Book.FirstOrDefault(book => book.Id == newDetails.bookId);
-            if (book == null) return NotFound();
-            if (book.SellerId != account.Id) return StatusCode(403);
+            if (book == null) return NotFound(new { error = "BookNotFound", message = "Book doesn't exist." });
+            if (book.SellerId != account.Id)
+                return StatusCode(403,
+                    new { error = "AccessDenied", message = "You don't permission to update this book." });
 
 
             string fileName = book.Cover;
@@ -135,17 +229,17 @@ public class SellerController : ControllerBase
             if (fileName != newDetails.Cover.FileName)
             {
                 if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
-                
-                fileName = newDetails.Name + "." + newDetails.Cover.FileName.Split(".").Last();;
+
+                fileName = newDetails.Name + "." + newDetails.Cover.FileName.Split(".").Last();
+                ;
                 using (FileStream coverFile =
                        System.IO.File.Create(_coverDir + fileName))
                 {
                     newDetails.Cover.CopyTo(coverFile);
                     coverFile.Close();
                 }
-
             }
-            
+
             book.Id = book.Id;
             book.Name = newDetails.Name;
             book.Author = newDetails.Author;
@@ -161,23 +255,35 @@ public class SellerController : ControllerBase
         catch (Exception ex)
         {
             Console.Write(ex);
-            return StatusCode(500);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
         }
     }
-    
+
     [HttpDelete]
-    [Route("/deleteBook")]
+    [Route("/seller/deleteBook")]
     public IActionResult DeleteBook(int bookId)
     {
         try
         {
             byte[]? bytes = HttpContext.Session.Get("SessionID");
-            if (bytes == null) return StatusCode(403);
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 0 && sessionType != null)
+                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires Seller Account." });
+            if (bytes == null)
+                return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
 
             BookModel? book = _context.Book.FirstOrDefault(book => book.Id == bookId);
-            if (book == null) return NotFound();
-            if (book.SellerId != account.Id) return StatusCode(403);
+            if (book == null) return NotFound(new { error = "BookNotFound", message = "Book doesn't exist." });
+            if (book.SellerId != account.Id)
+                return StatusCode(403,
+                    new { error = "AccessDenied", message = "You don't permission to delete this book." });
 
             _context.Book.Remove(book);
             _context.SaveChanges();
@@ -187,44 +293,11 @@ public class SellerController : ControllerBase
         catch (Exception ex)
         {
             Console.Write(ex);
-            return StatusCode(500);
-        }
-    }
-
-    [HttpGet]
-    [Route("/listBooks")]
-    public IActionResult ListBooks()
-    {
-        try
-        {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            if (bytes == null) return StatusCode(403);
-            SellerModel account = SellerModel.Deserialize(bytes);
-            
-            IQueryable<BookModel> bookModels = _context.Book.Where(book => book.SellerId == account.Id);
-            List<ServeBook> books = new List<ServeBook>();
-
-            foreach (BookModel book in bookModels)
+            return StatusCode(500, new
             {
-                books.Add(new ServeBook()
-                {
-                    Id = book.Id,
-                    Name = book.Name,
-                    Author = book.Author,
-                    Cover = HttpContext.Request.Headers.Host+"/Assets/"+book.Cover,
-                    Price = book.Price,
-                    Publisher = book.Publisher,
-                    PublishedAt = book.PublishAt,
-                    Type = book.BookTypeId,
-                });
-            }
-            
-            return Ok(books);
-        }
-        catch (Exception ex)
-        {
-            Console.Write(ex);
-            return StatusCode(500);
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
         }
     }
 }
