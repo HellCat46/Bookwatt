@@ -82,7 +82,9 @@ public class SellerController : ControllerBase
         {
             byte[]? bytes = HttpContext.Session.Get("SessionID");
             if (bytes == null) return StatusCode(403);
-
+            SellerModel account = SellerModel.Deserialize(bytes);
+            
+            // Saves Book Cover 
             string fileName = bookDetails.Name + "." + bookDetails.Cover.FileName.Split(".").Last();
             using (FileStream coverFile =
                    System.IO.File.Create(_coverDir + fileName))
@@ -90,8 +92,6 @@ public class SellerController : ControllerBase
                 bookDetails.Cover.CopyTo(coverFile);
                 coverFile.Close();
             }
-            
-            SellerModel account = SellerModel.Deserialize(bytes);
             
             _context.Book.Add(new BookModel()
             {
@@ -114,16 +114,48 @@ public class SellerController : ControllerBase
         }
     }
     
-    [HttpPatch]
+    [HttpPost]
     [Route("/updateBook")]
-    public IActionResult UpdateBook()
+    public IActionResult UpdateBook(Book newDetails)
     {
         try
         {
             byte[]? bytes = HttpContext.Session.Get("SessionID");
-            if (bytes == null) return StatusCode(403);;
+            if (bytes == null) return StatusCode(403);
+            SellerModel account = SellerModel.Deserialize(bytes);
+
+            BookModel? book = _context.Book.FirstOrDefault(book => book.Id == newDetails.bookId);
+            if (book == null) return NotFound();
+            if (book.SellerId != account.Id) return StatusCode(403);
 
 
+            string fileName = book.Cover;
+
+            // Replaces Existing Book Cover with new one 
+            if (fileName != newDetails.Cover.FileName)
+            {
+                if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
+                
+                fileName = newDetails.Name + "." + newDetails.Cover.FileName.Split(".").Last();;
+                using (FileStream coverFile =
+                       System.IO.File.Create(_coverDir + fileName))
+                {
+                    newDetails.Cover.CopyTo(coverFile);
+                    coverFile.Close();
+                }
+
+            }
+            
+            book.Id = book.Id;
+            book.Name = newDetails.Name;
+            book.Author = newDetails.Author;
+            book.Cover = fileName;
+            book.BookTypeId = newDetails.Type;
+            book.Price = newDetails.Price;
+            book.PublishAt = newDetails.PublishedAt;
+            book.SellerId = account.Id;
+            book.Publisher = newDetails.Publisher;
+            _context.SaveChanges();
             return Ok();
         }
         catch (Exception ex)
@@ -139,7 +171,6 @@ public class SellerController : ControllerBase
     {
         try
         {
-            Console.Write(bookId);
             byte[]? bytes = HttpContext.Session.Get("SessionID");
             if (bytes == null) return StatusCode(403);
             SellerModel account = SellerModel.Deserialize(bytes);
@@ -180,7 +211,7 @@ public class SellerController : ControllerBase
                     Id = book.Id,
                     Name = book.Name,
                     Author = book.Author,
-                    Cover = HttpContext.Request.Headers.Host+"Assets/"+book.Cover,
+                    Cover = HttpContext.Request.Headers.Host+"/Assets/"+book.Cover,
                     Price = book.Price,
                     Publisher = book.Publisher,
                     PublishedAt = book.PublishAt,
