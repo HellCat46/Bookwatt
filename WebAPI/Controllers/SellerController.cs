@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.dbContext;
 using WebAPI.Models;
@@ -6,7 +7,6 @@ using WebAPI.Models.ControllerModels;
 namespace WebAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
 public class SellerController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -76,14 +76,35 @@ public class SellerController : ControllerBase
 
     [HttpPost]
     [Route("/addBook")]
-    public IActionResult AddBook()
+    public IActionResult AddBook(Book bookDetails)
     {
         try
         {
             byte[]? bytes = HttpContext.Session.Get("SessionID");
             if (bytes == null) return StatusCode(403);
+
+            string fileName = bookDetails.Name + "." + bookDetails.Cover.FileName.Split(".").Last();
+            using (FileStream coverFile =
+                   System.IO.File.Create("Assets/" + fileName))
+            {
+                bookDetails.Cover.CopyTo(coverFile);
+                coverFile.Close();
+            }
             
+            SellerModel account = SellerModel.Deserialize(bytes);
             
+            _context.Book.Add(new BookModel()
+            {
+                Name = bookDetails.Name,
+                Author = bookDetails.Author,
+                Price = bookDetails.Price,
+                BookTypeId = bookDetails.Type,
+                Publisher = bookDetails.Publisher,
+                PublishAt = bookDetails.PublishedAt,
+                Cover = fileName,
+                SellerId = account.Id
+            });
+            _context.SaveChanges();
             return Ok();
         }
         catch (Exception ex)
@@ -130,4 +151,5 @@ public class SellerController : ControllerBase
             return StatusCode(500);
         }
     }
+
 }
