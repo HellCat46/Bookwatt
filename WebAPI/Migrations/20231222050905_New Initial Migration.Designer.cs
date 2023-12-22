@@ -12,8 +12,8 @@ using WebAPI.dbContext;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231222043834_BookType Name Type")]
-    partial class BookTypeNameType
+    [Migration("20231222050905_New Initial Migration")]
+    partial class NewInitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,9 +77,6 @@ namespace WebAPI.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("SellerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Typeid")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

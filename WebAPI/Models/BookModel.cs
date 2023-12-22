@@ -21,7 +21,7 @@ public class BookModel
     public string Author { get; set; }
     
     [Required]
-    public int Typeid { get; set; }
+    public int BookTypeId { get; set; }
     public BookType BookType { get; set; }
     
     [Required]
