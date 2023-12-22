@@ -1,4 +1,3 @@
-using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.dbContext;
 using WebAPI.Models;
@@ -136,13 +135,21 @@ public class SellerController : ControllerBase
     
     [HttpDelete]
     [Route("/deleteBook")]
-    public IActionResult DeleteBook()
+    public IActionResult DeleteBook(int bookId)
     {
         try
         {
+            Console.Write(bookId);
             byte[]? bytes = HttpContext.Session.Get("SessionID");
             if (bytes == null) return StatusCode(403);
+            SellerModel account = SellerModel.Deserialize(bytes);
 
+            BookModel? book = _context.Book.FirstOrDefault(book => book.Id == bookId);
+            if (book == null) return NotFound();
+            if (book.SellerId != account.Id) return StatusCode(403);
+
+            _context.Book.Remove(book);
+            _context.SaveChanges();
 
             return Ok();
         }
@@ -170,9 +177,10 @@ public class SellerController : ControllerBase
             {
                 books.Add(new ServeBook()
                 {
+                    Id = book.Id,
+                    Name = book.Name,
                     Author = book.Author,
                     Cover = HttpContext.Request.Headers.Host+"Assets/"+book.Cover,
-                    Name = book.Name,
                     Price = book.Price,
                     Publisher = book.Publisher,
                     PublishedAt = book.PublishAt,
