@@ -10,6 +10,7 @@ namespace WebAPI.Controllers;
 public class SellerController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly string _coverDir = "wwwroot/Assets/";
 
     public SellerController(ApplicationDbContext context)
     {
@@ -85,7 +86,7 @@ public class SellerController : ControllerBase
 
             string fileName = bookDetails.Name + "." + bookDetails.Cover.FileName.Split(".").Last();
             using (FileStream coverFile =
-                   System.IO.File.Create("Assets/" + fileName))
+                   System.IO.File.Create(_coverDir + fileName))
             {
                 bookDetails.Cover.CopyTo(coverFile);
                 coverFile.Close();
@@ -152,4 +153,39 @@ public class SellerController : ControllerBase
         }
     }
 
+    [HttpGet]
+    [Route("/listBooks")]
+    public IActionResult ListBooks()
+    {
+        try
+        {
+            byte[]? bytes = HttpContext.Session.Get("SessionID");
+            if (bytes == null) return StatusCode(403);
+            SellerModel account = SellerModel.Deserialize(bytes);
+            
+            IQueryable<BookModel> bookModels = _context.Book.Where(book => book.SellerId == account.Id);
+            List<ServeBook> books = new List<ServeBook>();
+
+            foreach (BookModel book in bookModels)
+            {
+                books.Add(new ServeBook()
+                {
+                    Author = book.Author,
+                    Cover = HttpContext.Request.Headers.Host+"Assets/"+book.Cover,
+                    Name = book.Name,
+                    Price = book.Price,
+                    Publisher = book.Publisher,
+                    PublishedAt = book.PublishAt,
+                    Type = book.BookTypeId,
+                });
+            }
+            
+            return Ok(books);
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex);
+            return StatusCode(500);
+        }
+    }
 }
