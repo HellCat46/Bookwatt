@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebAPI.dbContext;
 using WebAPI.Models;
 using WebAPI.Models.ControllerModels;
@@ -14,7 +15,7 @@ public class UserController : ControllerBase
     {
         _context = context;
     }
-    
+
     [HttpPost]
     [Route("/user/login")]
     public IActionResult Login(Login creds)
@@ -55,7 +56,7 @@ public class UserController : ControllerBase
             });
         }
     }
-    
+
     [HttpPost]
     [Route("/user/register")]
     public IActionResult Register(Register data)
@@ -99,7 +100,7 @@ public class UserController : ControllerBase
             });
         }
     }
-    
+
     [HttpDelete]
     [Route("/user/logout")]
     public IActionResult Logout()
@@ -117,33 +118,155 @@ public class UserController : ControllerBase
                 error = "UnexpectedError",
                 message = "Something Unexpected Happened while processing the request."
             });
-        } 
+        }
     }
 
     [HttpGet]
     [Route("/user/listBooks")]
-    public string ListBook()
+    public IActionResult ListBook()
     {
-        return "User ListBook";
+        try
+        {
+            byte[]? bytes = HttpContext.Session.Get("SessionID");
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 1 && sessionType != null)
+                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires User Account." });
+            if (bytes == null)
+                return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+
+            IQueryable<BookModel> bookModels = _context.Book;
+            List<ServeBook> books = new List<ServeBook>();
+
+            foreach (BookModel book in bookModels)
+            {
+                books.Add(new ServeBook()
+                {
+                    Id = book.Id,
+                    Name = book.Name,
+                    Author = book.Author,
+                    Cover = HttpContext.Request.Headers.Host + "/Assets/" + book.Cover,
+                    Price = book.Price,
+                    Publisher = book.Publisher,
+                    PublishedAt = book.PublishAt,
+                    Type = book.BookTypeId,
+                });
+            }
+
+            return Ok(books);
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
+        }
     }
-    
+
     [HttpGet]
     [Route("/user/listPurchasedBooks")]
-    public string ListBroughtBook()
+    public IActionResult ListBroughtBook()
     {
-        return "User List Purchased Book";
+        try
+        {
+            byte[]? bytes = HttpContext.Session.Get("SessionID");
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 1 && sessionType != null)
+                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires User Account." });
+            if (bytes == null)
+                return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+            UserModel account = UserModel.Deserialize(bytes);
+
+            IQueryable<BookModel> bookModels = _context.Book.Where(book => book.Buyers.Contains(account));
+            List<ServeBook> books = new List<ServeBook>();
+
+            foreach (BookModel book in bookModels)
+            {
+                books.Add(new ServeBook()
+                {
+                    Id = book.Id,
+                    Name = book.Name,
+                    Author = book.Author,
+                    Cover = HttpContext.Request.Headers.Host + "/Assets/" + book.Cover,
+                    Price = book.Price,
+                    Publisher = book.Publisher,
+                    PublishedAt = book.PublishAt,
+                    Type = book.BookTypeId,
+                });
+            }
+
+            return Ok(books);
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
+        }
     }
-    
+
     [HttpGet]
     [Route("/user/searchBook")]
     public string SearchBook()
     {
         return "User SearchBook";
     }
+
     [HttpPost]
     [Route("/user/buyBook")]
-    public string BuyBook()
+    public IActionResult BuyBook(int bookId)
     {
-        return "User BuyBook";
+        try
+        {
+            byte[]? bytes = HttpContext.Session.Get("SessionID");
+            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+
+
+            if (sessionType != 1 && sessionType != null)
+                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires User Account." });
+            if (bytes == null)
+                return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+            UserModel account = UserModel.Deserialize(bytes);
+
+
+            BookModel? book = _context.Book.Include(book => book.Buyers).FirstOrDefault(book => book.Id == bookId);
+            if (book == null) return NotFound(new { error = "BookNotFound", message = "Book doesn't exist." });
+
+
+            if (book.Buyers == null) book.Buyers = new List<UserModel>();
+
+            foreach (var buyer in book.Buyers)
+            {
+                if (buyer.Id == account.Id)
+                    return StatusCode(409, new
+                    {
+                        error = "AlreadyBrought",
+                        message = "You have already brought this book."
+                    });
+            }
+
+            book.Buyers.Add(account);
+
+            _context.SaveChanges();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
+        }
     }
 }
