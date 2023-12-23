@@ -59,7 +59,7 @@ public class SellerController : ControllerBase
     }
 
     [HttpPost]
-    [Route("/seller/Register")]
+    [Route("/seller/register")]
     public IActionResult Register(Register data)
     {
         try
@@ -89,6 +89,8 @@ public class SellerController : ControllerBase
             _context.SaveChanges();
             HttpContext.Session.Set("SessionID", SellerModel.Serialize(acc));
             HttpContext.Session.SetInt32("SessionType", 0);
+
+            return Ok();
         }
         catch (Exception ex)
         {
@@ -99,10 +101,28 @@ public class SellerController : ControllerBase
                 message = "Something Unexpected Happened while processing the request."
             });
         }
-
-        return Ok();
     }
 
+    [HttpDelete]
+    [Route("/seller/logout")]
+    public IActionResult Logout()
+    {
+        try
+        {
+            HttpContext.Session.Clear();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
+        } 
+    }
+    
     [HttpGet]
     [Route("/seller/listBooks")]
     public IActionResult ListBooks()
@@ -231,7 +251,6 @@ public class SellerController : ControllerBase
                 if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
                 fileName = newDetails.Name + "." + newDetails.Cover.FileName.Split(".").Last();
-                ;
                 using (FileStream coverFile =
                        System.IO.File.Create(_coverDir + fileName))
                 {

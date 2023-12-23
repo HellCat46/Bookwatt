@@ -99,6 +99,26 @@ public class UserController : ControllerBase
             });
         }
     }
+    
+    [HttpDelete]
+    [Route("/user/logout")]
+    public IActionResult Logout()
+    {
+        try
+        {
+            HttpContext.Session.Clear();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex);
+            return StatusCode(500, new
+            {
+                error = "UnexpectedError",
+                message = "Something Unexpected Happened while processing the request."
+            });
+        } 
+    }
 
     [HttpGet]
     [Route("/user/listBooks")]
