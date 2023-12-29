@@ -134,7 +134,7 @@ public class SellerController : ControllerBase
 
 
             if (sessionType != 0 && sessionType != null)
-                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires Seller Account." });
+                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
@@ -181,7 +181,7 @@ public class SellerController : ControllerBase
 
 
             if (sessionType != 0 && sessionType != null)
-                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires Seller Account." });
+                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
@@ -231,7 +231,7 @@ public class SellerController : ControllerBase
 
 
             if (sessionType != 0 && sessionType != null)
-                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires Seller Account." });
+                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
@@ -293,7 +293,7 @@ public class SellerController : ControllerBase
 
 
             if (sessionType != 0 && sessionType != null)
-                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires Seller Account." });
+                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);

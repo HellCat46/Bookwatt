@@ -132,7 +132,7 @@ public class UserController : ControllerBase
 
 
             if (sessionType != 1 && sessionType != null)
-                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires User Account." });
+                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires User Account." });
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
 
@@ -178,7 +178,7 @@ public class UserController : ControllerBase
 
 
             if (sessionType != 1 && sessionType != null)
-                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires User Account." });
+                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires User Account." });
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             UserModel account = UserModel.Deserialize(bytes);
@@ -232,7 +232,7 @@ public class UserController : ControllerBase
 
 
             if (sessionType != 1 && sessionType != null)
-                return StatusCode(403, new { error = "AccessDenied", message = "This Action Requires User Account." });
+                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires User Account." });
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             UserModel account = UserModel.Deserialize(bytes);
