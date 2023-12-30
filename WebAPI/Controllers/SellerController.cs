@@ -16,6 +16,20 @@ public class SellerController : ControllerBase
         _context = context;
     }
 
+    [HttpGet]
+    [Route("/getBookTypes")]
+    public IEnumerable<BookType> GetBookTypes()
+    {
+        try
+        {
+            return _context.BookType.ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return [];
+        }
+    }
 
     [HttpPost]
     [Route("/seller/login")]

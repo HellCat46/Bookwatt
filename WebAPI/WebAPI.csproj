@@ -15,4 +15,13 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Assets\dfdf.png" />
+    <None Include="wwwroot\Assets\dfdfcover" />
+  </ItemGroup>
+
 </Project>
