@@ -6,15 +6,9 @@ using WebAPI.Models.ControllerModels;
 namespace WebAPI.Controllers;
 
 [ApiController]
-public class SellerController : ControllerBase
+public class SellerController(ApplicationDbContext context) : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
     private readonly string _coverDir = "wwwroot/Assets/";
-
-    public SellerController(ApplicationDbContext context)
-    {
-        _context = context;
-    }
 
     [HttpGet]
     [Route("/getBookTypes")]
@@ -22,7 +16,7 @@ public class SellerController : ControllerBase
     {
         try
         {
-            return _context.BookType.ToList();
+            return context.BookType.ToList();
         }
         catch (Exception ex)
         {
@@ -51,7 +45,7 @@ public class SellerController : ControllerBase
                     message = "You are already logged in."
                 });
 
-            SellerModel? account = _context.Seller.FirstOrDefault(acc => acc.Email == creds.email);
+            SellerModel? account = context.Seller.FirstOrDefault(acc => acc.Email == creds.email);
             if (account == null)
                 return NotFound(new { error = "AccountNotFound", message = "No Account Associated with this email" });
             if (account.Password != creds.password)
@@ -99,8 +93,8 @@ public class SellerController : ControllerBase
                 Password = data.password
             };
 
-            _context.Seller.Add(acc);
-            _context.SaveChanges();
+            context.Seller.Add(acc);
+            context.SaveChanges();
             HttpContext.Session.Set("SessionID", SellerModel.Serialize(acc));
             HttpContext.Session.SetInt32("SessionType", 0);
 
@@ -153,7 +147,7 @@ public class SellerController : ControllerBase
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
 
-            IQueryable<BookModel> bookModels = _context.Book.Where(book => book.SellerId == account.Id);
+            IQueryable<BookModel> bookModels = context.Book.Where(book => book.SellerId == account.Id);
             List<ServeBook> books = new List<ServeBook>();
 
             foreach (BookModel book in bookModels)
@@ -209,7 +203,7 @@ public class SellerController : ControllerBase
                 coverFile.Close();
             }
 
-            _context.Book.Add(new BookModel()
+            BookModel book = new BookModel()
             {
                 Name = bookDetails.Name,
                 Author = bookDetails.Author,
@@ -219,9 +213,20 @@ public class SellerController : ControllerBase
                 PublishAt = bookDetails.PublishedAt,
                 Cover = fileName,
                 SellerId = account.Id
+            };
+            context.Book.Add(book);
+            context.SaveChanges();
+            return Ok(new ServeBook()
+            {
+                Id = book.Id,
+                Name = book.Name,
+                Author = book.Author,
+                Cover = HttpContext.Request.Headers.Host + "/Assets/" + book.Cover,
+                Price = book.Price,
+                Publisher = book.Publisher,
+                PublishedAt = book.PublishAt,
+                Type = book.BookTypeId,
             });
-            _context.SaveChanges();
-            return Ok();
         }
         catch (Exception ex)
         {
@@ -250,7 +255,7 @@ public class SellerController : ControllerBase
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
 
-            BookModel? book = _context.Book.FirstOrDefault(book => book.Id == newDetails.bookId);
+            BookModel? book = context.Book.FirstOrDefault(book => book.Id == newDetails.bookId);
             if (book == null) return NotFound(new { error = "BookNotFound", message = "Book doesn't exist." });
             if (book.SellerId != account.Id)
                 return StatusCode(403,
@@ -282,7 +287,7 @@ public class SellerController : ControllerBase
             book.PublishAt = newDetails.PublishedAt;
             book.SellerId = account.Id;
             book.Publisher = newDetails.Publisher;
-            _context.SaveChanges();
+            context.SaveChanges();
             return Ok();
         }
         catch (Exception ex)
@@ -312,14 +317,14 @@ public class SellerController : ControllerBase
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
 
-            BookModel? book = _context.Book.FirstOrDefault(book => book.Id == bookId);
+            BookModel? book = context.Book.FirstOrDefault(book => book.Id == bookId);
             if (book == null) return NotFound(new { error = "BookNotFound", message = "Book doesn't exist." });
             if (book.SellerId != account.Id)
                 return StatusCode(403,
                     new { error = "AccessDenied", message = "You don't permission to delete this book." });
 
-            _context.Book.Remove(book);
-            _context.SaveChanges();
+            context.Book.Remove(book);
+            context.SaveChanges();
 
             return Ok();
         }
