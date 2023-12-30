@@ -4,9 +4,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import SellerHomePage from './Seller/HomePage'
 import UserHomePage from './User/Homepage'
-import SellerLogin from './Seller/SellerLogin'
 import RequireSellerAuth from './Seller/RequireSellerAuth'
-import SellerRegister from './Seller/SellerRegister'
 
 function App() {
   return (
@@ -16,8 +14,6 @@ function App() {
             path="/seller"
             element={<RequireSellerAuth child={<SellerHomePage />} />}
           />
-          <Route path="/sellerLogin" element={<SellerLogin />} />
-          <Route path="/sellerRegister" element={<SellerRegister />} />
           <Route path="/" element={<UserHomePage />} />
         </Routes>
       </BrowserRouter>

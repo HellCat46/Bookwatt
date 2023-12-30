@@ -5,11 +5,15 @@ export interface Book {
   price: number;
   type: number;
   publisher: string;
-  publishedAt: Date;
+  publishedAt: string;
   cover: string;
   buyers: string[];
 }
 export interface ResponseError {
   error: string;
   message: string;
+}
+
+export interface BookAction extends Book {
+  action : "Added" | "Updated" | "Deleted"  
 }

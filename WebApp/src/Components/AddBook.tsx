@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { Book } from "../share.types";
 
-export default function () {
+export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
   const [BookTypes, ChangeBookTypes] = useState<{ id: number; name: string }[]>(
     []
   );
@@ -38,6 +39,12 @@ export default function () {
       method: "POST",
       body: formData,
       credentials : "include"
+    }).then(res => {
+      if(res.status === 200){
+        res.json().then( (book : Book) => {
+          onAddBook(book);
+        })
+      }
     });
     console.log(formData);
   }
@@ -85,9 +92,13 @@ export default function () {
             onChange={handleInput}
             required
           />
-          <select className="select select-bordered basis-1/2" >
+          <select className="select select-bordered basis-1/2">
             {BookTypes.map((booktype) => {
-              return <option value={booktype.id} key={booktype.id}>{booktype.name}</option>;
+              return (
+                <option value={booktype.id} key={booktype.id}>
+                  {booktype.name}
+                </option>
+              );
             })}
           </select>
         </div>
@@ -137,3 +148,4 @@ interface BookData {
   publishedAt : string;
   cover : File | undefined;
 }
+
