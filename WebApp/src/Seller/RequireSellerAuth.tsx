@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import SellerLogin from "./SellerLogin";
 import SellerRegister from "./SellerRegister";
 import { AlertPara } from "./seller.types";
+import HomePage from "./HomePage";
 
-export default function ({ child }: { child: JSX.Element }) {
+export default function () {
   const [loggedin, ChangeLogin] = useState(false);
   const [ShowRegister, setShowRegister] = useState(false);
   const [showAlert, setAlertState] = useState<AlertPara | null>(null);
 
+  // Checks if User is logged in or not
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -24,14 +26,17 @@ export default function ({ child }: { child: JSX.Element }) {
     fetchData();
   });
 
+  // Updates Login State
   function handleLogin() {
     ChangeLogin(true);
   }
 
+  // Renders Register Component
   function setRegisterState(val: boolean) {
     setShowRegister(val);
   }
 
+  // Shows Alerts on Bottom Middle part of screen
   function ShowAlert(params : AlertPara) {
     console.log(params);
     setAlertState(params);
@@ -39,7 +44,7 @@ export default function ({ child }: { child: JSX.Element }) {
   }
 
   let res : JSX.Element;
-  if (loggedin) res = child;
+  if (loggedin) res = (<HomePage ShowAlert={ShowAlert}/>);
   else res = ShowRegister ? (
       <SellerRegister
         handleLoginClick={setRegisterState}

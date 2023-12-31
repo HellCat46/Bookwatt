@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Book } from "../share.types";
+import { Book } from "../../share.types";
+import { AlertPara, AlertType, BookData } from "../seller.types";
+import { addBook } from "../../Components/Requests";
 
-export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
+export default function ({
+  onAddBook,
+  ShowAlert,
+}: {
+  onAddBook: (book: Book) => void;
+  ShowAlert: (params: AlertPara) => void;
+}) {
+  // Stores All the Book Types
   const [BookTypes, ChangeBookTypes] = useState<{ id: number; name: string }[]>(
     []
   );
+  // Fetches Book Types from DB usign API
   useEffect(() => {
     const fetchBookTypes = async () => {
       let res = await fetch("http://localhost:5246/getBookTypes");
@@ -13,49 +23,43 @@ export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
     fetchBookTypes();
   }, []);
 
-  const [form, Updateform] = useState<BookData>({
+  // Store New Book Data
+  const [Book, UpdateBook] = useState<BookData>({
     name: "",
     author: "",
-    price: 1,
+    price: "",
     type: 1,
     publisher: "",
     publishedAt: "",
-    cover : undefined
+    cover: undefined,
   });
-
-  function SubmitForm(e : React.FormEvent<HTMLFormElement>){
+  // Upload all the Newe Book data to DB through API
+  async function SubmitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log(form);
+
+    // Inserts Book Data into FormData Structure
     const formData = new FormData();
-    formData.append("name", form.name);
-    formData.append("author", form.author);
-    formData.append("price", form.price.toString());
-    formData.append("type", form.type.toString());
-    formData.append("publisher", form.publisher);
-    formData.append("publishedAt", form.publishedAt);
-    if(form.cover) formData.append("cover", form.cover, form.cover.name);
+    formData.append("name", Book.name);
+    formData.append("author", Book.author);
+    formData.append("price", Book.price);
+    formData.append("type", Book.type.toString());
+    formData.append("publisher", Book.publisher);
+    formData.append("publishedAt", Book.publishedAt);
+    if (Book.cover) formData.append("cover", Book.cover, Book.cover.name);
 
-    fetch("http://localhost:5246/seller/addBook", {
-      method: "POST",
-      body: formData,
-      credentials : "include"
-    }).then(res => {
-      if(res.status === 200){
-        res.json().then( (book : Book) => {
-          onAddBook(book);
-        })
-      }
-    });
-    console.log(formData);
+    const res = await addBook(formData);
+    if(res instanceof Error) {
+      ShowAlert({alertMessage : res.message, alertType : AlertType.Error})
+      return;
+    }
+    ShowAlert({ alertMessage: res.msg, alertType: AlertType.Success });
+    onAddBook(res.book);
   }
 
-  function handleInput(event : React.ChangeEvent<HTMLInputElement>){
-    Updateform({...form, [event.target.name] : event.target.value});
-  }
-
-  function handleFileUpload(event : React.ChangeEvent<HTMLInputElement>){
-    if(event.currentTarget.files !== null){
-      Updateform({...form, cover : event.currentTarget.files[0]})
+  // Adds Cover File to Book State 
+  function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.currentTarget.files !== null) {
+      UpdateBook({ ...Book, cover: event.currentTarget.files[0] });
     }
   }
 
@@ -69,7 +73,7 @@ export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
             placeholder="Book Name"
             className="input input-bordered"
             name="name"
-            onChange={handleInput}
+            onChange={(e) => UpdateBook({ ...Book, name: e.target.value })}
             required
           />
         </div>
@@ -79,7 +83,7 @@ export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
             placeholder="Author's Name"
             className="input input-bordered"
             name="author"
-            onChange={handleInput}
+            onChange={(e) => UpdateBook({ ...Book, author: e.target.value })}
             required
           />
         </div>
@@ -89,10 +93,15 @@ export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
             placeholder="Price"
             className="input input-bordered basis-1/2"
             name="price"
-            onChange={handleInput}
+            onChange={(e) => UpdateBook({ ...Book, price: e.target.value })}
             required
           />
-          <select className="select select-bordered basis-1/2">
+          <select
+            className="select select-bordered basis-1/2"
+            onChange={(e) =>
+              UpdateBook({ ...Book, type: parseInt(e.target.value) })
+            }
+          >
             {BookTypes.map((booktype) => {
               return (
                 <option value={booktype.id} key={booktype.id}>
@@ -109,7 +118,7 @@ export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
             maxLength={100}
             className="input input-bordered"
             name="publisher"
-            onChange={handleInput}
+            onChange={(e) => UpdateBook({ ...Book, publisher: e.target.value })}
             required
           />
         </div>
@@ -118,7 +127,9 @@ export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
             type="date"
             className="input input-bordered"
             name="publishedAt"
-            onChange={handleInput}
+            onChange={(e) =>
+              UpdateBook({ ...Book, publishedAt: e.target.value })
+            }
             required
           />
         </div>
@@ -128,6 +139,7 @@ export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
             className="file-input file-input-bordered "
             name="cover"
             onChange={handleFileUpload}
+            accept="image/*"
             required
           />
         </div>
@@ -138,14 +150,3 @@ export default function ({onAddBook} : {onAddBook : (book: Book) => void}) {
     </div>
   );
 }
-
-interface BookData {
-  name: string;
-  author: string;
-  price: number;
-  type: number;
-  publisher: string;
-  publishedAt : string;
-  cover : File | undefined;
-}
-

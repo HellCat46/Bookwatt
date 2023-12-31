@@ -9,5 +9,5 @@ public class Book
     public int Type { get; set; }
     public string Publisher { get; set; }
     public DateTime PublishedAt { get; set; }
-    public IFormFile Cover { get; set; }
+    public IFormFile? Cover { get; set; }
 }

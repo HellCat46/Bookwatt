@@ -11,12 +11,14 @@ export default function ({
   handleRegister: () => void;
   ShowAlert: (params: AlertPara) => void;
 }) {
+  // Takes User Credentials Input
   const [creds, changeCreds] = useState<{
     name: string;
     email: string;
     password: string;
   }>({ name: "", email: "", password: "" });
 
+  // Submits the Credentials to the Server
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {

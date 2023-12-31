@@ -187,13 +187,15 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
             byte[]? bytes = HttpContext.Session.Get("SessionID");
             int? sessionType = HttpContext.Session.GetInt32("SessionType");
 
+            if (bookDetails.Cover == null)
+                return StatusCode(400, new { error = "RequiredAttributeMissing", message = "Cover Attribute is Missing." });
 
             if (sessionType != 0 && sessionType != null)
                 return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
-
+            
             // Saves Book Cover 
             string fileName = bookDetails.Name + "." + bookDetails.Cover.FileName.Split(".").Last();
             using (FileStream coverFile =
@@ -262,11 +264,12 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
                     new { error = "AccessDenied", message = "You don't permission to update this book." });
 
 
-            string fileName = book.Cover;
+            
 
             // Replaces Existing Book Cover with new one 
-            if (fileName != newDetails.Cover.FileName)
+            if (newDetails.Cover != null)
             {
+                string fileName = book.Cover;
                 if (System.IO.File.Exists(fileName)) System.IO.File.Delete(fileName);
 
                 fileName = newDetails.Name + "." + newDetails.Cover.FileName.Split(".").Last();
@@ -276,19 +279,29 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
                     newDetails.Cover.CopyTo(coverFile);
                     coverFile.Close();
                 }
+                book.Cover = fileName;
             }
 
             book.Id = book.Id;
             book.Name = newDetails.Name;
             book.Author = newDetails.Author;
-            book.Cover = fileName;
             book.BookTypeId = newDetails.Type;
             book.Price = newDetails.Price;
             book.PublishAt = newDetails.PublishedAt;
             book.SellerId = account.Id;
             book.Publisher = newDetails.Publisher;
             context.SaveChanges();
-            return Ok();
+            return Ok(new ServeBook()
+            {
+                Id = book.Id,
+                Name = book.Name,
+                Author = book.Author,
+                Cover = HttpContext.Request.Headers.Host + "/Assets/" + book.Cover,
+                Price = book.Price,
+                Publisher = book.Publisher,
+                PublishedAt = book.PublishAt,
+                Type = book.BookTypeId,
+            });
         }
         catch (Exception ex)
         {

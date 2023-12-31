@@ -11,11 +11,13 @@ export default function ({
   handleLogin: () => void;
   ShowAlert: (params : AlertPara) => void;
 }) {
+  // Takes User Credentials Input
   const [creds, changeCreds] = useState<{ email: string; password: string }>({
     email: "",
     password: "",
   });
 
+  // Takes User Credentials Input
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -26,13 +28,20 @@ export default function ({
       credentials: "include",
     });
 
-    if (res.status == 200){ 
-      ShowAlert({alertMessage : "Successfully Logged In!!", alertType: AlertType.Success})
+    if (res.status == 200) {
+      ShowAlert({
+        alertMessage: "Successfully Logged In!!",
+        alertType: AlertType.Success,
+      });
       handleLogin();
+      return
     }
 
     const err: ResponseError = await res.json();
-    ShowAlert({ alertMessage : `${err.error}: ${err.message}`, alertType: AlertType.Error});
+    ShowAlert({
+      alertMessage: `${err.error}: ${err.message}`,
+      alertType: AlertType.Error,
+    });
   }
 
   return (
