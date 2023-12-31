@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { ResponseError } from "../shared.types";
-import { AlertPara, AlertType } from "../shared.types";
+import { ResponseError, AlertPara, AlertType } from "../../shared.types";
 
 export default function ({
   handleRegisterClick,

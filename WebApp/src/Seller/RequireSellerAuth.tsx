@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import SellerLogin from "./SellerLogin";
-import SellerRegister from "./SellerRegister";
+import SellerLogin from "./Auth/SellerLogin";
+import SellerRegister from "./Auth/SellerRegister";
 import HomePage from "./HomePage";
 import { AlertPara } from "../shared.types";
 
@@ -8,7 +8,7 @@ export default function ({ShowAlert} : {ShowAlert : (params : AlertPara) => void
   const [loggedin, ChangeLogin] = useState(false);
   const [ShowRegister, setShowRegister] = useState(false);
 
-  // Checks if User is logged in or not
+  // Checks if Seller is logged in or not
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,32 +30,23 @@ export default function ({ShowAlert} : {ShowAlert : (params : AlertPara) => void
     ChangeLogin(true);
   }
 
-  // Renders Register Component
-  function setRegisterState(val: boolean) {
-    setShowRegister(val);
-  }
-
-
-  let res : JSX.Element;
-  if (loggedin) res = (<HomePage ShowAlert={ShowAlert}/>);
-  else res = ShowRegister ? (
-      <SellerRegister
-        handleLoginClick={setRegisterState}
-        handleRegister={handleLogin}
-        ShowAlert={ShowAlert}
-      />
-      ) : (
-      <SellerLogin
-        handleRegisterClick={setRegisterState}
-        handleLogin={handleLogin}
-        ShowAlert={ShowAlert}
-      />
-      )
-  
-
   return (
     <>
-      {res}
+      {loggedin ? (
+        <HomePage ShowAlert={ShowAlert} />
+      ) : ShowRegister ? (
+        <SellerRegister
+          handleLoginClick={setShowRegister}
+          handleRegister={handleLogin}
+          ShowAlert={ShowAlert}
+        />
+      ) : (
+        <SellerLogin
+          handleRegisterClick={setShowRegister}
+          handleLogin={handleLogin}
+          ShowAlert={ShowAlert}
+        />
+      )}
     </>
   );
 }

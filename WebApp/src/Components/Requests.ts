@@ -1,5 +1,6 @@
 import { Book, ResponseError } from "../shared.types";
 
+// Seller Request Starts here
 export async function getBookList() {
   try {
     const res = await fetch("http://localhost:5246/seller/listBooks", {
@@ -68,4 +69,11 @@ export async function deleteBook(bookId: number) {
     console.error(ex);
     return new Error("Unexpected Error while trying to send request");
   }
+}
+// Seller Request Ends here
+
+
+// User Request Starts here
+export async function listAllBooks() {
+  
 }
