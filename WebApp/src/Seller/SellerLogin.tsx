@@ -1,32 +1,38 @@
-import { ChangeEvent, useState } from "react";
-import { redirect } from "react-router-dom";
+import { useState } from "react";
+import { ResponseError } from "../share.types";
+import { AlertPara, AlertType } from "./seller.types";
 
-export default function () {
-  const [email, changeEmail] = useState("");
-  const [password, changePassword] = useState("");
+export default function ({
+  handleRegisterClick,
+  handleLogin,
+  ShowAlert,
+}: {
+  handleRegisterClick: (val: boolean) => void;
+  handleLogin: () => void;
+  ShowAlert: (params : AlertPara) => void;
+}) {
+  const [creds, changeCreds] = useState<{ email: string; password: string }>({
+    email: "",
+    password: "",
+  });
 
-  function handleEmail(event : ChangeEvent<HTMLInputElement>){
-    changeEmail(event.target.value);
-  }
-
-  function handlePassword(event: ChangeEvent<HTMLInputElement>) {
-    changePassword(event.target.value)
-  }
-
-  async function handleSubmit(event : React.FormEvent<HTMLFormElement>){
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     const res = await fetch("http://localhost:5246/seller/login", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ email: email, password: password }),
+      body: JSON.stringify({ email: creds.email, password: creds.password }),
       credentials: "include",
     });
-    if(res.status == 200){
-      console.log("Logged In")
-      window.location.reload();
-    }else {
-      console.log(res.body);
+
+    if (res.status == 200){ 
+      ShowAlert({alertMessage : "Successfully Logged In!!", alertType: AlertType.Success})
+      handleLogin();
     }
+
+    const err: ResponseError = await res.json();
+    ShowAlert({ alertMessage : `${err.error}: ${err.message}`, alertType: AlertType.Error});
   }
 
   return (
@@ -44,7 +50,9 @@ export default function () {
                   type="email"
                   placeholder="email"
                   className="input input-bordered"
-                  onChange={handleEmail}
+                  onChange={(e) =>
+                    changeCreds({ ...creds, email: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -56,7 +64,9 @@ export default function () {
                   type="password"
                   placeholder="password"
                   className="input input-bordered"
-                  onChange={handlePassword}
+                  onChange={(e) =>
+                    changeCreds({ ...creds, password: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -64,7 +74,7 @@ export default function () {
                 <button className="btn btn-primary">Login</button>
               </div>
             </form>
-            <div className="link" onClick={() => redirect("/sellerRegister")}>
+            <div className="link" onClick={() => handleRegisterClick(true)}>
               Register
             </div>
           </div>

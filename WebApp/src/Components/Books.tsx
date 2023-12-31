@@ -1,5 +1,5 @@
-import { Book, ResponseError } from "../share.types";
-import { errorAlert, successAlert } from "./Toasts";
+import { AlertType } from "../Seller/seller.types";
+import { Book } from "../share.types";
 import { deleteBook } from "./Requests";
 
 
@@ -9,7 +9,7 @@ export default function BookList({
   onUpdateBook,
   onDeleteBook,
 }: {
-  books : Book[]
+  books: Book[];
   onUpdateBook: (book: Book) => void;
   onDeleteBook: (book: Book) => void;
 }) {
@@ -35,15 +35,14 @@ function BookComponent({
   onDeleteBook,
 }: {
   book: Book;
-  onUpdateBook: (book: Book) => void,
-  onDeleteBook: (book: Book) => void,
+  onUpdateBook: (book: Book) => void;
+  onDeleteBook: (book: Book) => void;
 }) {
   function delBook() {
     deleteBook(book.id).then((res) => {
       if (res instanceof Error) {
-        errorAlert(res.message);
+        console.log(res.message);
       } else {
-        successAlert(res);
         onDeleteBook(book);
       }
     });
