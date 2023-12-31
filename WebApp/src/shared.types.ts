@@ -14,6 +14,15 @@ export interface ResponseError {
   message: string;
 }
 
-export interface BookAction extends Book {
-  action : "Added" | "Updated" | "Deleted"  
+export enum AlertType {
+  "Success" = "alert-success",
+  "Info" = "alert-info",
+  "Warning" = "alert-warning",
+  "Error" = "alert-error",
+  "None" = "",
+}
+
+export interface AlertPara {
+  alertMessage: string;
+  alertType: AlertType;
 }

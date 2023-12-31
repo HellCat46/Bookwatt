@@ -1,4 +1,4 @@
-import { Book, ResponseError } from "../share.types";
+import { Book, ResponseError } from "../shared.types";
 
 export async function getBookList() {
   try {

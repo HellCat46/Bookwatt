@@ -1,16 +1,4 @@
-export enum AlertType {
-    "Success" = "alert-success",
-    "Info" = "alert-info",
-    "Warning" = "alert-warning",
-    "Error" = "alert-error",
-    "None" = ""
-};
-
-
-export interface AlertPara {
-    alertMessage : string,
-    alertType : AlertType
-}
+import { Book } from "../shared.types";
 
 export interface BookData {
   name: string;
@@ -20,4 +8,8 @@ export interface BookData {
   publisher: string;
   publishedAt: string;
   cover: File | undefined;
+}
+
+export interface BookAction extends Book {
+  action: "Added" | "Updated" | "Deleted";
 }

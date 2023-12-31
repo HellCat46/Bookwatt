@@ -1,9 +1,10 @@
 import { useEffect, useReducer } from "react";
 import BookList from "./Components/Books";
 import AddBook from "./Components/AddBook";
-import { Book, BookAction } from "../share.types";
 import { getBookList } from "../Components/Requests";
-import { AlertPara } from "./seller.types";
+import { Book } from "../shared.types";
+import { BookAction } from "./seller.types";
+import { AlertPara, } from "../shared.types";
 
 export default function ({ShowAlert} : {ShowAlert: (params : AlertPara) => void;}) {
 

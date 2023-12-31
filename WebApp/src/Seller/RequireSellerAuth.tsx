@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import SellerLogin from "./SellerLogin";
 import SellerRegister from "./SellerRegister";
-import { AlertPara } from "./seller.types";
 import HomePage from "./HomePage";
+import { AlertPara } from "../shared.types";
 
-export default function () {
+export default function ({ShowAlert} : {ShowAlert : (params : AlertPara) => void}) {
   const [loggedin, ChangeLogin] = useState(false);
   const [ShowRegister, setShowRegister] = useState(false);
-  const [showAlert, setAlertState] = useState<AlertPara | null>(null);
 
   // Checks if User is logged in or not
   useEffect(() => {
@@ -36,12 +35,6 @@ export default function () {
     setShowRegister(val);
   }
 
-  // Shows Alerts on Bottom Middle part of screen
-  function ShowAlert(params : AlertPara) {
-    console.log(params);
-    setAlertState(params);
-    setTimeout(() => {setAlertState(null)}, 5000)
-  }
 
   let res : JSX.Element;
   if (loggedin) res = (<HomePage ShowAlert={ShowAlert}/>);
@@ -63,17 +56,6 @@ export default function () {
   return (
     <>
       {res}
-      {showAlert != null ? <Alert alertMessage={showAlert.alertMessage} alertType={showAlert.alertType}/>: <></>}
     </>
-  );
-}
-
-function Alert(params : AlertPara) {
-  return (
-    <div id="toast" className="toast toast-center">
-      <div className={`alert ${params.alertType}`}>
-        <span>{params.alertMessage}</span>
-      </div>
-    </div>
   );
 }

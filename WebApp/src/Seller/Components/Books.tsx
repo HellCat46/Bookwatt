@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Book } from "../../share.types";
+import { Book } from "../../shared.types";
 import { deleteBook } from "../../Components/Requests";
 import EditBook from "./EditBook";
-import { AlertPara, AlertType } from "../seller.types";
+import { AlertPara, AlertType } from "../../shared.types";
 
 export default function BookList({
   books,

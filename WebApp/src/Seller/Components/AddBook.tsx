@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Book } from "../../share.types";
-import { AlertPara, AlertType, BookData } from "../seller.types";
+import { Book } from "../../shared.types";
+import { BookData } from "../seller.types";
+import {AlertPara, AlertType} from "../../shared.types";
 import { addBook } from "../../Components/Requests";
 
 export default function ({
