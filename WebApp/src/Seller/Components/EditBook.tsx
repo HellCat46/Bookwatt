@@ -67,7 +67,7 @@ export default function EditBook({
               type="text"
               placeholder="Book Name"
               className="input input-bordered"
-              name="name"
+              maxLength={100}
               onChange={(e) => Updateform({ ...form, name: e.target.value })}
             />
           </div>
@@ -76,7 +76,7 @@ export default function EditBook({
               type="text"
               placeholder="Author's Name"
               className="input input-bordered"
-              name="author"
+              maxLength={100}
               onChange={(e) => Updateform({ ...form, author: e.target.value })}
             />
           </div>
@@ -85,7 +85,8 @@ export default function EditBook({
               type="number"
               placeholder="Price"
               className="input input-bordered w-1/2"
-              name="price"
+              min={1}
+              max={9999}
               onChange={(e) => Updateform({ ...form, price: e.target.value })}
             />
             <select
@@ -141,9 +142,7 @@ export default function EditBook({
           <button className="btn btn-primary" onClick={UpdateBook}>
             Save Changes
           </button>
-
           <div className="grow"></div>
-
           <form method="dialog">
             <button className="btn" onClick={() => updateEditState(false)}>
               Close

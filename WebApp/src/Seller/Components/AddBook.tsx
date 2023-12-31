@@ -72,7 +72,7 @@ export default function ({
             type="text"
             placeholder="Book Name"
             className="input input-bordered"
-            name="name"
+            maxLength={100}
             onChange={(e) => UpdateBook({ ...Book, name: e.target.value })}
             required
           />
@@ -82,7 +82,7 @@ export default function ({
             type="text"
             placeholder="Author's Name"
             className="input input-bordered"
-            name="author"
+            maxLength={100}
             onChange={(e) => UpdateBook({ ...Book, author: e.target.value })}
             required
           />
@@ -92,7 +92,8 @@ export default function ({
             type="number"
             placeholder="Price"
             className="input input-bordered basis-1/2"
-            name="price"
+            min={1}
+            max={9999}
             onChange={(e) => UpdateBook({ ...Book, price: e.target.value })}
             required
           />
