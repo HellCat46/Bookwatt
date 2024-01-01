@@ -26,3 +26,8 @@ export interface AlertPara {
   alertMessage: string;
   alertType: AlertType;
 }
+
+export interface BookType {
+  id: number;
+  name: string;
+}

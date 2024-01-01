@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { deleteBook } from "../../Components/Requests";
+import { deleteBook, getBookTypes } from "../../Components/Requests";
 import EditBook from "./EditBook";
 import { Book, AlertPara, AlertType } from "../../shared.types";
 
@@ -19,8 +19,7 @@ export default function BookList({
   );
   useEffect(() => {
     const fetchBookTypes = async () => {
-      let res = await fetch("http://localhost:5246/getBookTypes");
-      ChangeBookTypes(await res.json());
+      ChangeBookTypes(await getBookTypes());
     };
     fetchBookTypes();
   }, []);

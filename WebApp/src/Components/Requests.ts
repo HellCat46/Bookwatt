@@ -1,4 +1,11 @@
-import { Book, ResponseError } from "../shared.types";
+import { Book, BookType, ResponseError } from "../shared.types";
+
+export async function getBookTypes() {
+  const res = await fetch("http://localhost:5246/getBookTypes");
+
+  const types: BookType[] = await res.json();
+  return types;
+}
 
 // Seller Request Starts here
 export async function SellerLogin(creds: { email: string; password: string }) {
@@ -42,7 +49,7 @@ export async function SellerRegister(creds: {
 
 export async function SellerLogout() {
   const res = await fetch("http://localhost:5246/seller/logout", {
-    method : "DELETE",
+    method: "DELETE",
     credentials: "include",
   });
 
@@ -125,6 +132,55 @@ export async function deleteBook(bookId: number) {
 // Seller Request Ends here
 
 // User Request Starts here
+export async function UserLogin(creds: { email: string; password: string }) {
+  const res = await fetch("http://localhost:5246/user/login", {
+    method: "POST",
+    headers: new Headers({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ email: creds.email, password: creds.password }),
+    credentials: "include",
+  });
+
+  if (res.status == 200) {
+    return "Ok";
+  }
+
+  const err: ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
+}
+
+export async function UserRegister(creds: {
+  name: string;
+  email: string;
+  password: string;
+}) {
+  const res = await fetch("http://localhost:5246/user/register", {
+    method: "POST",
+    headers: new Headers({ "Content-Type": "application/json" }),
+    body: JSON.stringify({
+      name: creds.name,
+      email: creds.email,
+      password: creds.password,
+    }),
+    credentials: "include",
+  });
+  if (res.status == 200) {
+    return "Ok";
+  }
+  const err: ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
+}
+
+export async function UserLogout() {
+  const res = await fetch("http://localhost:5246/user/logout", {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (res.status === 200) return "OK";
+
+  const err: ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
+}
+
 export async function listAllBooks() {
   const res = await fetch("http://localhost:5246/user/listBooks", {
     credentials: "include",
@@ -133,8 +189,37 @@ export async function listAllBooks() {
     const books: Book[] = await res.json();
     console.log(books);
     return books;
-  } else {
-    const err: ResponseError = await res.json();
-    return new Error(`${err.error}: ${err.message}`);
   }
+
+  const err: ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
 }
+
+export async function listBroughtBooks() {
+  const res = await fetch("http://localhost:5246/user/listPurchasedBooks", {
+    credentials: "include",
+  });
+
+  if (res.status === 200) {
+    const books: Book[] = await res.json();
+    return books;
+  }
+
+  const err: ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
+}
+
+export async function buyBook(bookId : number) {
+  const res = await fetch(`http://localhost:5246/user/buyBook?bookId=${bookId}`, {
+    method : "POST",
+    credentials : "include"
+  });
+  if(res.status === 200){
+    return "Ok"
+  }
+  const err: ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
+  
+}
+
+// User Request Ends here
