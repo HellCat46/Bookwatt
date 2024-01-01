@@ -116,8 +116,9 @@ public class UserController : ControllerBase
             byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+            UserModel account = UserModel.Deserialize(bytes);
 
-            IQueryable<BookModel> bookModels = _context.Book;
+            IQueryable<BookModel> bookModels = _context.Book.Where(book => !book.Buyers.Contains(account));
             List<ServeBook> books = new List<ServeBook>();
 
             foreach (BookModel book in bookModels)

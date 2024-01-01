@@ -47,9 +47,11 @@ export default function ({ShowAlert} : {
     // Functions to handle Book Actions
     function handleBuyBook(book: Book) {
       dispatchbrought({ action: "Added", ...book });
+      dispatch({action: "Deleted", ...book})
     }
     function handleReturnBook(book: Book) {
       dispatchbrought({ action: "Deleted", ...book });
+      dispatch({ action: "Added", ...book });
     }
 
     return (
