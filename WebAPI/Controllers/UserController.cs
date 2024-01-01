@@ -22,13 +22,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 1 && sessionType != null)
-                return StatusCode(403,
-                    new { error = "AccessDenied", message = "Logout from the Seller Account First!!!" });
+            byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes != null)
                 return BadRequest(new
                 {
@@ -42,8 +36,7 @@ public class UserController : ControllerBase
             if (account.Password != creds.password)
                 return Unauthorized(new { error = "InvalidCredentials", message = "Account Credentials are Invalid." });
 
-            HttpContext.Session.Set("SessionID", UserModel.Serialize(account));
-            HttpContext.Session.SetInt32("SessionType", 1);
+            HttpContext.Session.Set("UserData", UserModel.Serialize(account));
             return Ok();
         }
         catch (Exception ex)
@@ -63,13 +56,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 1 && sessionType != null)
-                return StatusCode(403,
-                    new { error = "AccessDenied", message = "Logout from the Seller Account First!!!" });
+            byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes != null)
                 return BadRequest(new
                 {
@@ -86,8 +73,7 @@ public class UserController : ControllerBase
 
             _context.User.Add(acc);
             _context.SaveChanges();
-            HttpContext.Session.Set("SessionID", UserModel.Serialize(acc));
-            HttpContext.Session.SetInt32("SessionType", 1);
+            HttpContext.Session.Set("UserData", UserModel.Serialize(acc));
             return Ok();
         }
         catch (Exception ex)
@@ -127,12 +113,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 1 && sessionType != null)
-                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires User Account." });
+            byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
 
@@ -173,14 +154,10 @@ public class UserController : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 1 && sessionType != null)
-                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires User Account." });
+            byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+            
             UserModel account = UserModel.Deserialize(bytes);
 
             IQueryable<BookModel> bookModels = _context.Book.Where(book => book.Buyers.Contains(account));
@@ -227,14 +204,10 @@ public class UserController : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 1 && sessionType != null)
-                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires User Account." });
+            byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+            
             UserModel account = UserModel.Deserialize(bytes);
 
 

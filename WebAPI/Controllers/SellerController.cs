@@ -31,13 +31,8 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 0 && sessionType != null)
-                return StatusCode(403,
-                    new { error = "AccessDenied", message = "Logout from the User Account First!!!" });
+            byte[]? bytes = HttpContext.Session.Get("SellerData");
+            
             if (bytes != null)
                 return BadRequest(new
                 {
@@ -51,8 +46,7 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
             if (account.Password != creds.password)
                 return Unauthorized(new { error = "InvalidCredentials", message = "Account Credentials are Invalid." });
 
-            HttpContext.Session.Set("SessionID", SellerModel.Serialize(account));
-            HttpContext.Session.SetInt32("SessionType", 0);
+            HttpContext.Session.Set("SellerData", SellerModel.Serialize(account));
             return Ok();
         }
         catch (Exception ex)
@@ -72,13 +66,8 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
+            byte[]? bytes = HttpContext.Session.Get("SellerData");
 
-
-            if (sessionType != 0 && sessionType != null)
-                return StatusCode(403,
-                    new { error = "AccessDenied", message = "Logout from the User Account First!!!" });
             if (bytes != null)
                 return BadRequest(new
                 {
@@ -95,9 +84,7 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
 
             context.Seller.Add(acc);
             context.SaveChanges();
-            HttpContext.Session.Set("SessionID", SellerModel.Serialize(acc));
-            HttpContext.Session.SetInt32("SessionType", 0);
-
+            HttpContext.Session.Set("SellerData", SellerModel.Serialize(acc));
             return Ok();
         }
         catch (Exception ex)
@@ -117,7 +104,7 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
     {
         try
         {
-            HttpContext.Session.Clear();
+            HttpContext.Session.Remove("SellerData");
             return Ok();
         }
         catch (Exception ex)
@@ -137,12 +124,8 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 0 && sessionType != null)
-                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
+            byte[]? bytes = HttpContext.Session.Get("SellerData");
+            
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
@@ -184,14 +167,10 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
             if (bookDetails.Cover == null)
                 return StatusCode(400, new { error = "RequiredAttributeMissing", message = "Cover Attribute is Missing." });
 
-            if (sessionType != 0 && sessionType != null)
-                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
+            byte[]? bytes = HttpContext.Session.Get("SellerData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
@@ -247,14 +226,10 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 0 && sessionType != null)
-                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
+            byte[]? bytes = HttpContext.Session.Get("SellerData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+            
             SellerModel account = SellerModel.Deserialize(bytes);
 
             BookModel? book = context.Book.FirstOrDefault(book => book.Id == newDetails.bookId);
@@ -320,14 +295,10 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
     {
         try
         {
-            byte[]? bytes = HttpContext.Session.Get("SessionID");
-            int? sessionType = HttpContext.Session.GetInt32("SessionType");
-
-
-            if (sessionType != 0 && sessionType != null)
-                return StatusCode(403, new { error = "NoPrivilege", message = "This Action Requires Seller Account." });
+            byte[]? bytes = HttpContext.Session.Get("SellerData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
+            
             SellerModel account = SellerModel.Deserialize(bytes);
 
             BookModel? book = context.Book.FirstOrDefault(book => book.Id == bookId);
