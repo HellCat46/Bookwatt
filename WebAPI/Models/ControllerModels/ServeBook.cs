@@ -10,5 +10,12 @@ public class ServeBook
         public string Publisher { get; set; }
         public DateTime PublishedAt { get; set; }
         public string Cover { get; set; }
-        public List<string> Buyers { get; set; }
+        public List<Buyer> Buyers { get; set; }
+}
+
+public class Buyer
+{
+        public string name { get; set; }
+        
+        public string email { get; set; }
 }

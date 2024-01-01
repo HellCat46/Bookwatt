@@ -9,7 +9,6 @@ namespace WebAPI.Controllers;
 [ApiController]
 public class UserController(ApplicationDbContext context) : ControllerBase
 {
-
     [HttpPost]
     [Route("/user/login")]
     public IActionResult Login(Login creds)
@@ -87,7 +86,7 @@ public class UserController(ApplicationDbContext context) : ControllerBase
     {
         try
         {
-            HttpContext.Session.Clear();
+            HttpContext.Session.Remove("UserData");
             return Ok();
         }
         catch (Exception ex)
@@ -152,7 +151,7 @@ public class UserController(ApplicationDbContext context) : ControllerBase
             byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
-            
+
             UserModel account = UserModel.Deserialize(bytes);
 
             IQueryable<BookModel> bookModels = context.Book.Where(book => book.Buyers.Contains(account));
@@ -185,7 +184,7 @@ public class UserController(ApplicationDbContext context) : ControllerBase
             });
         }
     }
-    
+
     [HttpPost]
     [Route("/user/buyBook")]
     public IActionResult BuyBook(int bookId)
@@ -195,7 +194,7 @@ public class UserController(ApplicationDbContext context) : ControllerBase
             byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
-            
+
             UserModel account = UserModel.Deserialize(bytes);
 
 
@@ -204,12 +203,13 @@ public class UserController(ApplicationDbContext context) : ControllerBase
 
 
             if (book.Buyers == null) book.Buyers = new List<UserModel>();
-            
-            if (book.Buyers.Any(buyer => buyer.Id == account.Id)) return StatusCode(409, new
-            {
-                error = "AlreadyBrought",
-                message = "You have already brought this book."
-            });
+
+            if (book.Buyers.Any(buyer => buyer.Id == account.Id))
+                return StatusCode(409, new
+                {
+                    error = "AlreadyBrought",
+                    message = "You have already brought this book."
+                });
 
             book.Buyers.Add(account);
 
@@ -236,7 +236,7 @@ public class UserController(ApplicationDbContext context) : ControllerBase
             byte[]? bytes = HttpContext.Session.Get("UserData");
             if (bytes == null)
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
-            
+
             UserModel account = UserModel.Deserialize(bytes);
 
 
@@ -247,11 +247,13 @@ public class UserController(ApplicationDbContext context) : ControllerBase
 
             if (book == null) return NotFound(new { error = "BookNotFound", message = "Book doesn't exist." });
 
-            if (!(book.Buyers.Any(buyer => buyer.Id == account.Id))) return StatusCode(404, new
-            {
-                error = "BookNotOwned",
-                message = "You don't own this book"
-            });;
+            if (!(book.Buyers.Any(buyer => buyer.Id == account.Id)))
+                return StatusCode(404, new
+                {
+                    error = "BookNotOwned",
+                    message = "You don't own this book"
+                });
+            
 
             book.Buyers.Remove(user);
             context.SaveChanges();

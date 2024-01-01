@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebAPI.dbContext;
 using WebAPI.Models;
 using WebAPI.Models.ControllerModels;
@@ -130,11 +131,21 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
                 return StatusCode(403, new { error = "AccessDenied", message = "You need to login/register first." });
             SellerModel account = SellerModel.Deserialize(bytes);
 
-            IQueryable<BookModel> bookModels = context.Book.Where(book => book.SellerId == account.Id);
+            IQueryable<BookModel> bookModels = context.Book.Include(book=>book.Buyers).Where(book => book.SellerId == account.Id);
             List<ServeBook> books = new List<ServeBook>();
 
+            
             foreach (BookModel book in bookModels)
             {
+                List<Buyer> buyer = new List<Buyer>();
+                foreach (UserModel user in book.Buyers)
+                {
+                    buyer.Add(new Buyer()
+                    {
+                        name = user.Name,
+                        email = user.Email
+                    });
+                }
                 books.Add(new ServeBook()
                 {
                     Id = book.Id,
@@ -145,9 +156,9 @@ public class SellerController(ApplicationDbContext context) : ControllerBase
                     Publisher = book.Publisher,
                     PublishedAt = book.PublishAt,
                     Type = book.BookTypeId,
+                    Buyers = buyer
                 });
             }
-
             return Ok(books);
         }
         catch (Exception ex)
