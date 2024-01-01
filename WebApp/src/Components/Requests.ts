@@ -1,6 +1,58 @@
 import { Book, ResponseError } from "../shared.types";
 
 // Seller Request Starts here
+export async function SellerLogin(creds: { email: string; password: string }) {
+  const res = await fetch("http://localhost:5246/seller/login", {
+    method: "POST",
+    headers: new Headers({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ email: creds.email, password: creds.password }),
+    credentials: "include",
+  });
+
+  if (res.status == 200) {
+    return "Ok";
+  }
+
+  const err: ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
+}
+
+export async function SellerRegister(creds: {
+  name: string;
+  email: string;
+  password: string;
+}) {
+  const res = await fetch("http://localhost:5246/seller/register", {
+    method: "POST",
+    headers: new Headers({ "Content-Type": "application/json" }),
+    body: JSON.stringify({
+      name: creds.name,
+      email: creds.email,
+      password: creds.password,
+    }),
+    credentials: "include",
+  });
+  if (res.status == 200) {
+    return "OK";
+  }
+
+  const err: ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
+}
+
+export async function SellerLogout() {
+  const res = await fetch("http://localhost:5246/seller/logout", {
+    method : "DELETE",
+    credentials: "include",
+  });
+
+  if (res.status === 200) {
+    return "Ok";
+  }
+  const err: ResponseError = await res.json();
+  return err;
+}
+
 export async function getBookList() {
   try {
     const res = await fetch("http://localhost:5246/seller/listBooks", {
@@ -72,8 +124,17 @@ export async function deleteBook(bookId: number) {
 }
 // Seller Request Ends here
 
-
 // User Request Starts here
 export async function listAllBooks() {
-  
+  const res = await fetch("http://localhost:5246/user/listBooks", {
+    credentials: "include",
+  });
+  if (res.status === 200) {
+    const books: Book[] = await res.json();
+    console.log(books);
+    return books;
+  } else {
+    const err: ResponseError = await res.json();
+    return new Error(`${err.error}: ${err.message}`);
+  }
 }

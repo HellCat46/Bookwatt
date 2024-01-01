@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ResponseError, AlertPara, AlertType } from "../../shared.types";
+import { AlertPara, AlertType } from "../../shared.types";
+import { SellerRegister } from "../../Components/Requests";
 
 export default function ({
   handleLoginClick,
@@ -20,37 +21,20 @@ export default function ({
   // Submits the Credentials to the Server
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    try {
-      const res = await fetch("http://localhost:5246/seller/register", {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify({
-          name: creds.name,
-          email: creds.email,
-          password: creds.password,
-        }),
-        credentials: "include",
-      });
-      if (res.status == 200) {
-        ShowAlert({
-          alertMessage: `Successfully Signed Up!`,
-          alertType: AlertType.Success,
-        });
-        handleRegister();
-      } else {
-        const err: ResponseError = await res.json();
-        ShowAlert({
-          alertMessage: `${err.error}: ${err.message}`,
-          alertType: AlertType.Error,
-        });
-      }
-    } catch (ex) {
-      console.error(ex);
+
+    const res = await SellerRegister(creds);
+    if (res instanceof Error) {
       ShowAlert({
-        alertMessage: "Unable to send the request",
+        alertMessage: res.message,
         alertType: AlertType.Error,
       });
+      return;
     }
+    ShowAlert({
+      alertMessage: `Successfully Signed Up!`,
+      alertType: AlertType.Success,
+    });
+    handleRegister();
   }
 
   return (

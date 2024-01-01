@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ResponseError, AlertPara, AlertType } from "../../shared.types";
+import { AlertPara, AlertType } from "../../shared.types";
+import { SellerLogin } from "../../Components/Requests";
 
 export default function ({
   handleRegisterClick,
@@ -8,7 +9,7 @@ export default function ({
 }: {
   handleRegisterClick: (val: boolean) => void;
   handleLogin: () => void;
-  ShowAlert: (params : AlertPara) => void;
+  ShowAlert: (params: AlertPara) => void;
 }) {
   // Takes User Credentials Input
   const [creds, changeCreds] = useState<{ email: string; password: string }>({
@@ -19,28 +20,21 @@ export default function ({
   // Takes User Credentials Input
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    const res = await fetch("http://localhost:5246/seller/login", {
-      method: "POST",
-      headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ email: creds.email, password: creds.password }),
-      credentials: "include",
-    });
-
-    if (res.status == 200) {
+    const res = await SellerLogin(creds);
+    if (res instanceof Error) {
       ShowAlert({
-        alertMessage: "Successfully Logged In!!",
-        alertType: AlertType.Success,
+        alertMessage: res.message,
+        alertType: AlertType.Error,
       });
-      handleLogin();
-      return
+      return;
     }
 
-    const err: ResponseError = await res.json();
     ShowAlert({
-      alertMessage: `${err.error}: ${err.message}`,
-      alertType: AlertType.Error,
+      alertMessage: "Successfully Logged In!!",
+      alertType: AlertType.Success,
     });
+    handleLogin();
+    return;
   }
 
   return (
