@@ -1,9 +1,9 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import BookList from "./Components/Books";
 import AddBook from "./Components/AddBook";
-import { getBookList } from "../Components/Requests";
+import { getBookList, getBookTypes } from "../Components/Requests";
 import { BookAction } from "./seller.types";
-import { AlertPara, Book } from "../shared.types";
+import { AlertPara, Book, BookType } from "../shared.types";
 
 export default function ({
   ShowAlert,
@@ -12,6 +12,8 @@ export default function ({
   ShowAlert: (params: AlertPara) => void;
   Logout : () => Promise<void>;
 }) {
+  const [BookTypes, UpdateBookTypes] = useState<BookType[]>([]);
+  
   // Store Books and keep trace of it
   const [books, dispatch] = useReducer(booksReducer, []);
   useEffect(() => {
@@ -26,6 +28,7 @@ export default function ({
       res.forEach((book) => {
         dispatch({ action: "Added", ...book });
       });
+      UpdateBookTypes(await getBookTypes());
     };
 
     FetchBooks();
@@ -54,7 +57,11 @@ export default function ({
         Book Records
       </div>
       <div className="col-span-2 h-[90vh] lg:col-span-1 bg-base-100">
-        <AddBook onAddBook={handleAddBook} ShowAlert={ShowAlert} />
+        <AddBook
+          onAddBook={handleAddBook}
+          ShowAlert={ShowAlert}
+          BookTypes={BookTypes}
+        />
       </div>
       <div className="lg:overflow-y-auto col-span-2 lg:col-span-1 bg-base-100">
         <div className="px-5 h-full ">
@@ -63,6 +70,7 @@ export default function ({
             onUpdateBook={handleUpdateBook}
             onDeleteBook={handleDeleteBook}
             ShowAlert={ShowAlert}
+            BookTypes={BookTypes}
           />
         </div>
       </div>

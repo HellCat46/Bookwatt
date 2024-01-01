@@ -7,8 +7,14 @@ export interface Book {
   publisher: string;
   publishedAt: string;
   cover: string;
-  buyers: string[];
+  buyers: Buyer[];
 }
+
+export interface Buyer {
+  name : string;
+  email : string
+}
+
 export interface ResponseError {
   error: string;
   message: string;

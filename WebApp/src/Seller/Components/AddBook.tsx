@@ -1,26 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { Book, AlertPara, AlertType } from "../../shared.types";
+import React, { useState } from "react";
+import { Book, AlertPara, AlertType, BookType } from "../../shared.types";
 import { BookData  } from "../seller.types";
-import { addBook, getBookTypes } from "../../Components/Requests";
+import { addBook } from "../../Components/Requests";
 
 export default function ({
+  BookTypes,
   onAddBook,
   ShowAlert,
 }: {
+  BookTypes: BookType[];
   onAddBook: (book: Book) => void;
   ShowAlert: (params: AlertPara) => void;
 }) {
-  // Stores All the Book Types
-  const [BookTypes, ChangeBookTypes] = useState<{ id: number; name: string }[]>(
-    []
-  );
-  // Fetches Book Types from DB usign API
-  useEffect(() => {
-    const fetchBookTypes = async () => {
-      ChangeBookTypes(await getBookTypes());
-    };
-    fetchBookTypes();
-  }, []);
+
 
   // Store New Book Data
   const [Book, UpdateBook] = useState<BookData>({
