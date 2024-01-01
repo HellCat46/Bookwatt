@@ -223,4 +223,16 @@ export async function buyBook(bookId : number) {
   
 }
 
+export async function returnBook(bookId: number) {
+  const res = await fetch(`${apiUrl}/user/returnBook?bookId=${bookId}`, {
+    method : "POST",
+    credentials : "include"
+  });
+  if(res.status === 200){
+    return "Ok";
+  }
+
+  const err : ResponseError = await res.json();
+  return new Error(`${err.error}: ${err.message}`);
+}
 // User Request Ends here

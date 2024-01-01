@@ -1,4 +1,4 @@
-import { buyBook } from "../../Components/Requests";
+import { buyBook, returnBook } from "../../Components/Requests";
 import { AlertPara, AlertType, Book, BookType } from "../../shared.types";
 
 export default function Books({
@@ -7,7 +7,7 @@ export default function Books({
   booktypes,
   ShowAlert,
   handleBuyBook,
-  handleReturnBook
+  handleReturnBook,
 }: {
   books: Book[];
   isBrought: boolean;
@@ -34,14 +34,13 @@ export default function Books({
   );
 }
 
-
 function BookComponent({
   book,
   isBrought,
   booktypes,
   ShowAlert,
   handleBuyBook,
-  handleReturnBook
+  handleReturnBook,
 }: {
   book: Book;
   isBrought: boolean;
@@ -63,7 +62,19 @@ function BookComponent({
     });
     handleBuyBook(book);
   }
-  async function onReturnClick() {}
+  async function onReturnClick() {
+    const res = await returnBook(book.id);
+    if (res instanceof Error) {
+      ShowAlert({ alertMessage: res.message, alertType: AlertType.Error });
+      return;
+    }
+
+    ShowAlert({
+      alertMessage: `Successfully Returned the Book "${book.name}"`,
+      alertType: AlertType.Warning,
+    });
+    handleReturnBook(book);
+  }
 
   return (
     <div className="card card-side bg-base-300 shadow-xl my-2">
