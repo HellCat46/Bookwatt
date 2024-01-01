@@ -2,9 +2,9 @@ import './index.css'
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import UserHomePage from './User/Homepage'
 import RequireSellerAuth from './Seller/RequireSellerAuth'
 import { AlertPara } from './shared.types'
+import RequireUserAuth from './User/RequireUserAuth'
 
 function App() {
 
@@ -21,7 +21,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/seller" element={<RequireSellerAuth ShowAlert={ShowAlert}/>} />
-          <Route path="/" element={<UserHomePage />} />
+          <Route path="/" element={<RequireUserAuth ShowAlert={ShowAlert}/>} />
         </Routes>
       </BrowserRouter>
       {showAlert != null ? (

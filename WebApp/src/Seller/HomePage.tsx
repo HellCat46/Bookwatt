@@ -47,10 +47,13 @@ export default function ({
 
   return (
     <div className="h-screen w-screen grid grid-cols-2 gap-2 bg-base-300">
-      <div className="h-min col-span-2 p-4 text-center text-5xl font-bold bg-base-200 " onDoubleClick={Logout}>
+      <div
+        className="h-min col-span-2 p-4 text-center text-5xl font-bold bg-base-200 "
+        onDoubleClick={Logout}
+      >
         Book Records
       </div>
-      <div className="col-span-2 h-full lg:col-span-1 bg-base-100">
+      <div className="col-span-2 h-[90vh] lg:col-span-1 bg-base-100">
         <AddBook onAddBook={handleAddBook} ShowAlert={ShowAlert} />
       </div>
       <div className="lg:overflow-y-auto col-span-2 lg:col-span-1 bg-base-100">

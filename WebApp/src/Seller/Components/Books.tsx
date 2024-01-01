@@ -76,7 +76,7 @@ function BookComponent({
     <>
       <div className="card card-side bg-base-300 shadow-xl my-5" key={book.id}>
         <figure className="basis-1/4">
-          <img className="" src={"http://" + book.cover} alt="Book Cover" />
+          <img className="w-48" src={"http://" + book.cover} alt="Book Cover" />
         </figure>
         <div className="card-body basis-3/4 flex-row">
           <div className="basis-5/6 flex flex-col">
