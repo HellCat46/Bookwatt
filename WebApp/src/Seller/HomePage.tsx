@@ -49,32 +49,42 @@ export default function ({
   }
 
   return (
-    <div className="h-screen w-screen grid grid-cols-2 gap-2 bg-base-300">
-      <div
-        className="h-min col-span-2 p-4 text-center text-5xl font-bold bg-base-200 "
-        onDoubleClick={Logout}
-      >
-        Book Records
+    <>
+      <div className="h-[10vh] w-screen flex flex-rows gap-2 bg-base-300">
+        <div className=" p-4 text-center text-5xl font-bold grow">
+          Book Records
+        </div>
+        <div className="flex justify-center items-center p-2">
+          <button
+            className="btn btn-outline btn-warning"
+            onDoubleClick={Logout}
+          >
+            Logout
+          </button>
+        </div>
       </div>
-      <div className="col-span-2 h-[90vh] lg:col-span-1 bg-base-100">
-        <AddBook
-          onAddBook={handleAddBook}
-          ShowAlert={ShowAlert}
-          BookTypes={BookTypes}
-        />
-      </div>
-      <div className="lg:overflow-y-auto col-span-2 lg:col-span-1 bg-base-100">
-        <div className="px-5 h-full ">
-          <BookList
-            books={books}
-            onUpdateBook={handleUpdateBook}
-            onDeleteBook={handleDeleteBook}
+
+      <div className="h-[90vh] w-screen grid grid-cols-2 gap-2 bg-base-300">
+        <div className="col-span-2 h-[90vh] lg:col-span-1 bg-base-100">
+          <AddBook
+            onAddBook={handleAddBook}
             ShowAlert={ShowAlert}
             BookTypes={BookTypes}
           />
         </div>
+        <div className="lg:overflow-y-auto col-span-2 lg:col-span-1 bg-base-100">
+          <div className="px-5 h-full ">
+            <BookList
+              books={books}
+              onUpdateBook={handleUpdateBook}
+              onDeleteBook={handleDeleteBook}
+              ShowAlert={ShowAlert}
+              BookTypes={BookTypes}
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
