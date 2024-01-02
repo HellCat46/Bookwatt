@@ -66,6 +66,7 @@ export default function EditBook({
             <input
               type="text"
               placeholder="Book Name"
+              value={book.name}
               className="input input-bordered"
               maxLength={100}
               onChange={(e) => Updateform({ ...form, name: e.target.value })}
@@ -75,6 +76,7 @@ export default function EditBook({
             <input
               type="text"
               placeholder="Author's Name"
+              value={book.author}
               className="input input-bordered"
               maxLength={100}
               onChange={(e) => Updateform({ ...form, author: e.target.value })}
@@ -84,6 +86,7 @@ export default function EditBook({
             <input
               type="number"
               placeholder="Price"
+              value={book.price}
               className="input input-bordered w-1/2"
               min={1}
               max={9999}
@@ -109,6 +112,7 @@ export default function EditBook({
             <input
               type="text"
               placeholder="Publisher"
+              value={book.publisher}
               maxLength={100}
               className="input input-bordered"
               name="publisher"
@@ -120,6 +124,7 @@ export default function EditBook({
           <div className="form-control">
             <input
               type="date"
+              value={book.publishedAt.split("T")[0]} // Why didn't i just use OnlyDate on API side? Don't know
               className="input input-bordered"
               name="publishedAt"
               onChange={(e) =>
