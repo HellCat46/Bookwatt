@@ -72,9 +72,7 @@ function BookComponent({
   }
   return (
     <>
-      <div className="collapse bg-base-200 shadow-xl my-5">
-        <input type="checkbox" />
-        <div className="collapse-title card card-side bg-base-300 ">
+        <div className="card card-side bg-base-300 shadow-xl my-5">
           <figure className="basis-1/4">
             <img
               className="w-48"
@@ -186,32 +184,7 @@ function BookComponent({
             </div>
           </div>
         </div>
-
-        <div className="collapse-content">
-          {book.buyers.length > 0 ? (
-              <table className="table table-zebra">
-                <thead>
-                  <tr>
-                    <th>Buyer Name</th>
-                    <th>Buyer Email</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {book.buyers.map((buyer) => {
-                    return (
-                      <tr>
-                        <th>{buyer.name}</th>
-                        <th>{buyer.email}</th>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-          ) : (
-            <div className="text-center text-2xl">Your book is ass</div>
-          )}
-        </div>
-      </div>
+      
       {showEdit ? (
         <EditBook
           book={book}
